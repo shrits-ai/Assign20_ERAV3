@@ -21,12 +21,16 @@ class Network(nn.Module):
         self.input_size = input_size
         self.nb_action = nb_action
         self.fc1 = nn.Linear(input_size, 30)
-        self.fc2 = nn.Linear(30, nb_action)
+        self.fc2 = nn.Linear(30, 30)  # Added extra FC layer
+        self.fc3 = nn.Linear(30, nb_action)
+
     
     def forward(self, state):
         x = F.relu(self.fc1(state))
-        q_values = self.fc2(x)
+        x = F.relu(self.fc2(x))  # Extra layer with ReLU activation
+        q_values = self.fc3(x)
         return q_values
+
 
 # Implementing Experience Replay
 
@@ -60,7 +64,7 @@ class Dqn():
         self.last_reward = 0
     
     def select_action(self, state):
-        probs = F.softmax(self.model(Variable(state, volatile = True))*100) # T=100
+        probs = F.softmax(self.model(Variable(state, volatile = True))*100) # T=100 
         action = probs.multinomial(1)
         return action.data[0,0]
     
